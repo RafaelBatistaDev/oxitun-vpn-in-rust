@@ -1,4 +1,4 @@
-# Vpn-lite by Rust
+# Oxitun by Rust
 
 Minimal OpenVPN tunnel container: **HTTP CONNECT proxy + killswitch firewall
 + process supervisor** in a single small static Rust binary (~1 MB).
@@ -20,7 +20,7 @@ A lean alternative to VPN sidecar images for workloads that only need
 
 ## Measured footprint (Alpine 3.20, openvpn 2.6)
 
-| | vpn-lite | typical VPN sidecar |
+| | oxitun | typical VPN sidecar |
 |---|---|---|
 | RSS per container | **~4–8 MiB** | ~35–45 MiB |
 
@@ -28,14 +28,14 @@ A lean alternative to VPN sidecar images for workloads that only need
 
 ```bash
 docker run -d \
-  --name vpn1 \
+  --name oxitun \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -e PROTONVPN_USER='your-user' \
   -e PROTONVPN_PASS='your-pass' \
   -v /path/to/profile.ovpn:/etc/openvpn/client.ovpn:ro \
   -p 127.0.0.1:18011:8888 \
-  vpn-lite
+  oxitun
 ```
 
 Then:
@@ -48,7 +48,8 @@ curl http://127.0.0.1:18011/healthz                    # liveness
 ### docker compose
 
 See `docker-compose.yml` — copy `.env.example` to `.env`, drop `.ovpn`
-profiles into `profiles/`, `docker compose up -d`.
+profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
+`docker compose up -d`.
 
 ## Environment variables
 
@@ -73,6 +74,6 @@ profiles into `profiles/`, `docker compose up -d`.
 ## Build
 
 ```bash
-docker build -t vpn-lite .
+docker build -t oxitun .
 # or locally: cargo build --release
 ```

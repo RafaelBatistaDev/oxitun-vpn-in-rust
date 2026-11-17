@@ -136,13 +136,13 @@ fn handle_client(mut client: TcpStream) {
 /// Bind `0.0.0.0:port` and serve forever (one thread per connection).
 pub fn serve(port: u16) -> std::io::Result<()> {
     let listener = TcpListener::bind(("0.0.0.0", port))?;
-    eprintln!("[vpn-lite] CONNECT proxy listening on :{port}");
+    eprintln!("[oxitun] CONNECT proxy listening on :{port}");
     for stream in listener.incoming() {
         match stream {
             Ok(s) => {
                 thread::spawn(move || handle_client(s));
             }
-            Err(e) => eprintln!("[vpn-lite] accept error: {e}"),
+            Err(e) => eprintln!("[oxitun] accept error: {e}"),
         }
     }
     Ok(())

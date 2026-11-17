@@ -1,12 +1,15 @@
 [package]
-name = "vpn-lite"
+name = "oxitun"
 version = "0.1.0"
 edition = "2021"
-description = "Minimal OpenVPN tunnel container: CONNECT proxy + killswitch firewall + supervisor"
+authors = ["Rafael Batista <RafaelBatistaDev>"]
+description = "Ultra-lightweight VPN container core in Rust consuming ~2MB RSS"
+readme = "README.md"
 license = "MIT"
 
 [profile.release]
-opt-level = 2
-lto = true
-codegen-units = 1
-strip = true
+opt-level = "z"        # Otimizar agressivamente para menor tamanho de binário
+lto = true             # Link Time Optimization para remover código morto
+codegen-units = 1      # Maior nível de otimização de linkagem
+panic = "abort"        # Remove código de unwinding para encolher o binário
+strip = true           # Remove símbolos de debug automaticamente

@@ -1,7 +1,8 @@
 # Test compose — 2 tunnels. Copy .env.example to .env and fill credentials.
-name: vpn-lite
+# Drop your own .ovpn profiles next to this file as oxitun-1.ovpn / oxitun-2.ovpn.
+name: oxitun
 
-x-vpn-lite: &vpn-lite
+x-oxitun: &oxitun
   build: .
   restart: unless-stopped
   cap_add:
@@ -19,21 +20,21 @@ x-vpn-lite: &vpn-lite
 
 services:
   vpn-1:
-    <<: *vpn-lite
-    container_name: vpn-lite-1
+    <<: *oxitun
+    container_name: oxitun-1
     environment:
       OPENVPN_PROFILE: /etc/openvpn/client.ovpn
     volumes:
-      - ./profiles/us-free-112.protonvpn.tcp.ovpn:/etc/openvpn/client.ovpn:ro
+      - ./oxitun-1.ovpn:/etc/openvpn/client.ovpn:ro
     ports:
       - "127.0.0.1:18011:8888"
 
   vpn-2:
-    <<: *vpn-lite
-    container_name: vpn-lite-2
+    <<: *oxitun
+    container_name: oxitun-2
     environment:
       OPENVPN_PROFILE: /etc/openvpn/client.ovpn
     volumes:
-      - ./profiles/nl-free-102.protonvpn.tcp.ovpn:/etc/openvpn/client.ovpn:ro
+      - ./oxitun-2.ovpn:/etc/openvpn/client.ovpn:ro
     ports:
       - "127.0.0.1:18012:8888"

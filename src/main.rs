@@ -1,4 +1,4 @@
-//! vpn-lite — minimal OpenVPN tunnel container.
+//! oxitun — minimal OpenVPN tunnel container.
 //!
 //! One process does everything gluetun does for this use case:
 //!   1. installs a killswitch firewall (iptables) so traffic can only leave
@@ -47,7 +47,7 @@ fn strip_quotes(s: &str) -> String {
 }
 
 fn log(msg: &str) {
-    eprintln!("[vpn-lite] {msg}");
+    eprintln!("[oxitun] {msg}");
 }
 
 fn run(cmd: &str, args: &[&str]) -> Result<(), String> {
@@ -149,7 +149,7 @@ fn write_resolv_conf(dns: &str) -> Result<(), String> {
 }
 
 fn write_auth_file(user: &str, pass: &str) -> Result<String, String> {
-    let path = "/run/vpn-lite-auth.txt";
+    let path = "/run/oxitun-auth.txt";
     fs::write(path, format!("{user}\n{pass}\n")).map_err(|e| format!("{path}: {e}"))?;
     #[cfg(unix)]
     {
@@ -165,7 +165,7 @@ fn tun0_exists() -> bool {
 
 fn main() {
     if let Err(e) = run_inner() {
-        eprintln!("[vpn-lite] FATAL: {e}");
+        eprintln!("[oxitun] FATAL: {e}");
         std::process::exit(1);
     }
 }
@@ -244,7 +244,7 @@ fn run_inner() -> Result<i32, String> {
     // CONNECT proxy on its own thread; main supervises openvpn.
     thread::spawn(move || {
         if let Err(e) = proxy::serve(proxy_port) {
-            eprintln!("[vpn-lite] proxy fatal: {e}");
+            eprintln!("[oxitun] proxy fatal: {e}");
             std::process::exit(1);
         }
     });
