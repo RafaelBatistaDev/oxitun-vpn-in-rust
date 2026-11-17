@@ -3,7 +3,7 @@
 name: oxitun
 
 x-oxitun: &oxitun
-  build: .
+  image: oxitun:latest
   restart: unless-stopped
   cap_add:
     - NET_ADMIN
@@ -23,7 +23,7 @@ services:
     <<: *oxitun
     container_name: oxitun-1
     environment:
-      OPENVPN_PROFILE: /etc/openvpn/client.ovpn
+      VPN_PROFILE: /etc/openvpn/client.ovpn
     volumes:
       - ./oxitun-1.ovpn:/etc/openvpn/client.ovpn:ro
     ports:
@@ -33,7 +33,7 @@ services:
     <<: *oxitun
     container_name: oxitun-2
     environment:
-      OPENVPN_PROFILE: /etc/openvpn/client.ovpn
+      VPN_PROFILE: /etc/openvpn/client.ovpn
     volumes:
       - ./oxitun-2.ovpn:/etc/openvpn/client.ovpn:ro
     ports:

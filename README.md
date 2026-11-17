@@ -1,28 +1,37 @@
-# Oxitun by Rust
+# oxitun
 
 Minimal OpenVPN tunnel container: **HTTP CONNECT proxy + killswitch firewall
-+ process supervisor** in a single small static Rust binary (~1 MB).
++ process supervisor** in a single small static Rust binary.
 
-A lean alternative to VPN sidecar images for workloads that only need
-"traffic out through a specific tunnel" — e.g. per-worker egress IPs.
+A lean, single-binary alternative to VPN sidecar images (e.g. Gluetun) for
+workloads that only need "traffic out through a specific tunnel" — such as
+per-worker egress IPs for high-throughput API clients.
 
 ## Features
 
 - **CONNECT proxy** on `0.0.0.0:8888` (HTTPS tunneling; plain-HTTP forward
   proxying intentionally unsupported)
 - **`GET /healthz`** on the same port — `200` only while `tun0` exists
-- **Killswitch (iptables)**: default-DROP on INPUT/FORWARD/OUTPUT; traffic
-  may only leave via `tun0` or the VPN server itself — no IP leaks if the
-  tunnel drops
-- **Tunnel DNS** pinned to `10.2.0.1` (ProtonVPN); external DNS blocked
-- **Auto-restart**: exits when `openvpn` dies → Docker `restart` policy
+  (used by the Docker `HEALTHCHECK`)
+- **Killswitch (iptables + ip6tables)**: default-DROP on INPUT/FORWARD/OUTPUT;
+  traffic may only leave via `tun0` or the VPN server itself — no IP leaks
+  if the tunnel drops
+- **Tunnel DNS** pinned to the provider resolver (default `10.2.0.1`,
+  ProtonVPN); external DNS is unreachable under the killswitch
+- **OpenVPN supervision**: restarts remote failover flags
+  (`--connect-retry-max`, `--connect-timeout`, `--hand-window`) so dead
+  free-tier servers are skipped instead of hanging forever; the process
+  exits when `openvpn` dies → Docker `restart` policy takes over
 - **Zero runtime deps beyond `openvpn`**: the supervisor *is* the binary
 
 ## Measured footprint (Alpine 3.20, openvpn 2.6)
 
-| | oxitun | typical VPN sidecar |
+| | oxitun | Gluetun (reference) |
 |---|---|---|
-| RSS per container | **~4–8 MiB** | ~35–45 MiB |
+| RSS per container | **~1–8 MiB** | ~35–45 MiB |
+| 80 containers total | **~81 MiB** | ~3.0 GiB |
+
+Validated in production with 80 concurrent ProtonVPN tunnels.
 
 ## Usage
 
@@ -42,7 +51,7 @@ Then:
 
 ```bash
 curl -x http://127.0.0.1:18011 https://api.ipify.org   # exit IP of the tunnel
-curl http://127.0.0.1:18011/healthz                    # liveness
+curl http://127.0.0.1:18011/healthz                    # liveness (200 = tun0 up)
 ```
 
 ### docker compose
@@ -55,21 +64,40 @@ profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
 
 | Variable | Default | Description |
 |---|---|---|
-| `PROTONVPN_USER` | — (required) | VPN username |
-| `PROTONVPN_PASS` | — (required) | VPN password |
-| `OPENVPN_PROFILE` | `/etc/openvpn/client.ovpn` | Path to `.ovpn` profile |
+| `PROTONVPN_USER` / `OPENVPN_USER` | — (required) | VPN username (`OPENVPN_USER` accepted as alias) |
+| `PROTONVPN_PASS` / `OPENVPN_PASSWORD` | — (required) | VPN password (`OPENVPN_PASSWORD` accepted as alias) |
+| `VPN_PROFILE` / `OPENVPN_PROFILE` | `/etc/openvpn/client.ovpn` | Path to `.ovpn` profile |
 | `PROXY_PORT` | `8888` | CONNECT proxy listen port |
 | `VPN_DNS` | `10.2.0.1` | Resolver forced inside the tunnel |
 | `KILLSWITCH` | `on` | `off` disables iptables rules (**debug only**) |
 
+Values may be wrapped in single or double quotes — they are stripped.
+
+## Image
+
+The published image is multi-stage (`rust:alpine` → `alpine:3.20`) and only
+~15 MB. Runtime packages: `openvpn`, `iptables`, `iproute2`, `tini`.
+
+## Security notes
+
+- The container **requires** `NET_ADMIN` and `/dev/net/tun` — the killswitch
+  and tunnel cannot work without them. Do not expose the proxy port beyond
+  localhost unless you add your own auth.
+- Credentials are written to `/run/oxitun-auth.txt` (mode `0600`, tmpfs)
+  and passed to `openvpn --auth-user-pass`; they never appear in logs.
+- If the VPN server list in a profile changes, the killswitch allowlist is
+  rebuilt from the profile's `remote` directives on every container start.
+- `KILLSWITCH=off` exists for debugging only — never use it in production.
+
 ## Notes & limitations
 
 - OpenVPN **TCP client** profiles only (e.g. ProtonVPN `.ovpn` files)
-- The killswitch allowlists the `remote` IPs found in the profile; if your
-  profile rotates remotes to new IPs, reconnect picks them up on restart
 - `auth-user-pass` profiles only — no certificates/client-key auth yet
+- Plain-HTTP forward proxying is not implemented (CONNECT only)
 - Run **one tunnel per container**; scale by running N containers
 - Tested with ProtonVPN free-server profiles; other providers unverified
+- Free-tier servers are flaky by nature — pair this with an external
+  health-check/restart loop if you need automatic profile rotation
 
 ## Build
 
@@ -77,3 +105,7 @@ profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
 docker build -t oxitun .
 # or locally: cargo build --release
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
