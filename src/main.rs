@@ -171,9 +171,8 @@ fn main() {
 }
 
 fn run_inner() -> Result<i32, String> {
-    // VPN_PROFILE > OPENVPN_PROFILE > default. Credentials accept both the
-    // generic PROTONVPN_* names and the OPENVPN_* names used by legacy
-    // compose files.
+    // VPN_PROFILE > OPENVPN_PROFILE > default. Credentials are the
+    // provider-agnostic VPN_USER / VPN_PASS.
     let profile = ["VPN_PROFILE", "OPENVPN_PROFILE"]
         .iter()
         .find_map(|k| env::var(k).ok())
@@ -187,10 +186,10 @@ fn run_inner() -> Result<i32, String> {
     let vpn_dns = env_or("VPN_DNS", "10.2.0.1");
     let killswitch = !matches!(env_or("KILLSWITCH", "on").to_lowercase().as_str(), "off" | "0" | "false" | "no");
 
-    let user = strip_quotes(&first_env(&["OPENVPN_USER", "PROTONVPN_USER"])?);
-    let pass = strip_quotes(&first_env(&["OPENVPN_PASSWORD", "PROTONVPN_PASS"])?);
+    let user = strip_quotes(&first_env(&["VPN_USER"])?);
+    let pass = strip_quotes(&first_env(&["VPN_PASS"])?);
     if user.is_empty() || pass.is_empty() {
-        return Err("PROTONVPN_USER/PASS empty after unquoting".into());
+        return Err("VPN_USER/VPN_PASS empty after unquoting".into());
     }
 
     if killswitch {

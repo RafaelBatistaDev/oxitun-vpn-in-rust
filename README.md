@@ -40,8 +40,8 @@ docker run -d \
   --name oxitun \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
-  -e PROTONVPN_USER='your-user' \
-  -e PROTONVPN_PASS='your-pass' \
+  -e VPN_USER='your-user' \
+  -e VPN_PASS='your-pass' \
   -v /path/to/profile.ovpn:/etc/openvpn/client.ovpn:ro \
   -p 127.0.0.1:18011:8888 \
   oxitun
@@ -64,8 +64,8 @@ profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
 
 | Variable | Default | Description |
 |---|---|---|
-| `PROTONVPN_USER` / `OPENVPN_USER` | — (required) | VPN username (`OPENVPN_USER` accepted as alias) |
-| `PROTONVPN_PASS` / `OPENVPN_PASSWORD` | — (required) | VPN password (`OPENVPN_PASSWORD` accepted as alias) |
+| `VPN_USER` | — (required) | VPN username |
+| `VPN_PASS` | — (required) | VPN password |
 | `VPN_PROFILE` / `OPENVPN_PROFILE` | `/etc/openvpn/client.ovpn` | Path to `.ovpn` profile |
 | `PROXY_PORT` | `8888` | CONNECT proxy listen port |
 | `VPN_DNS` | `10.2.0.1` | Resolver forced inside the tunnel |
