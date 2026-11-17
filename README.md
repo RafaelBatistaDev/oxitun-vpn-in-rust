@@ -66,7 +66,7 @@ profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
 |---|---|---|
 | `VPN_USER` | — (required) | VPN username |
 | `VPN_PASS` | — (required) | VPN password |
-| `VPN_PROFILE` / `OPENVPN_PROFILE` | `/etc/openvpn/client.ovpn` | Path to `.ovpn` profile |
+| `VPN_PROFILE` | `/etc/openvpn/client.ovpn` | Path to `.ovpn` profile |
 | `PROXY_PORT` | `8888` | CONNECT proxy listen port |
 | `VPN_DNS` | `10.2.0.1` | Resolver forced inside the tunnel |
 | `KILLSWITCH` | `on` | `off` disables iptables rules (**debug only**) |

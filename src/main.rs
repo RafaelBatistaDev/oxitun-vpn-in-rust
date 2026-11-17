@@ -171,14 +171,9 @@ fn main() {
 }
 
 fn run_inner() -> Result<i32, String> {
-    // VPN_PROFILE > OPENVPN_PROFILE > default. Credentials are the
-    // provider-agnostic VPN_USER / VPN_PASS.
-    let profile = ["VPN_PROFILE", "OPENVPN_PROFILE"]
-        .iter()
-        .find_map(|k| env::var(k).ok())
-        .map(|v| v.trim().to_string())
-        .filter(|v| !v.is_empty())
-        .unwrap_or_else(|| "/etc/openvpn/client.ovpn".to_string());
+    // VPN_PROFILE > default. Credentials are the provider-agnostic
+    // VPN_USER / VPN_PASS.
+    let profile = env_or("VPN_PROFILE", "/etc/openvpn/client.ovpn");
     let profile_path = Path::new(&profile);
     let proxy_port: u16 = env_or("PROXY_PORT", "8888")
         .parse()
