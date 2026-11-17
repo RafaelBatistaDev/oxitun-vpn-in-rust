@@ -12,7 +12,7 @@ permissions:
 
 env:
   GHCR_IMAGE: ghcr.io/rafaelbatistadev/oxitun
-  DOCKERHUB_IMAGE: rafaelbatistadev/oxitun
+  DOCKERHUB_IMAGE: rafaelbs2026/oxitun
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
 jobs:
