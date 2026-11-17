@@ -1,0 +1,39 @@
+# Test compose — 2 tunnels. Copy .env.example to .env and fill credentials.
+name: vpn-lite
+
+x-vpn-lite: &vpn-lite
+  build: .
+  restart: unless-stopped
+  cap_add:
+    - NET_ADMIN
+  devices:
+    - /dev/net/tun:/dev/net/tun
+  env_file:
+    - .env
+  mem_limit: 32m
+  logging:
+    driver: json-file
+    options:
+      max-size: "5m"
+      max-file: "2"
+
+services:
+  vpn-1:
+    <<: *vpn-lite
+    container_name: vpn-lite-1
+    environment:
+      OPENVPN_PROFILE: /etc/openvpn/client.ovpn
+    volumes:
+      - ./profiles/us-free-112.protonvpn.tcp.ovpn:/etc/openvpn/client.ovpn:ro
+    ports:
+      - "127.0.0.1:18011:8888"
+
+  vpn-2:
+    <<: *vpn-lite
+    container_name: vpn-lite-2
+    environment:
+      OPENVPN_PROFILE: /etc/openvpn/client.ovpn
+    volumes:
+      - ./profiles/nl-free-102.protonvpn.tcp.ovpn:/etc/openvpn/client.ovpn:ro
+    ports:
+      - "127.0.0.1:18012:8888"
