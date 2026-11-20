@@ -62,10 +62,8 @@ profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
 
 ### Using the published image
 
-The canonical image is published at **`ghcr.io/oxitun/oxitun`** (public GHCR,
-anonymous pull works). Mirrors with the author's name are also published at
-`ghcr.io/rafaelbatistadev/oxitun` and `rafaelbs2026/oxitun` (Docker Hub) as
-fallbacks:
+The image is published at **`ghcr.io/oxitun/oxitun`** (public GHCR,
+anonymous pull works):
 
 ```bash
 docker pull ghcr.io/oxitun/oxitun:latest
@@ -81,7 +79,7 @@ docker tag ghcr.io/oxitun/oxitun:latest oxitun:latest
 # then use `oxitun:latest` in `docker run` / compose → shows "oxitun"
 
 # or build it yourself (no registry needed)
-git clone https://github.com/RafaelBatistaDev/oxitun-vpn-in-rust.git
+git clone https://github.com/oxitun/oxitun-vpn-in-rust.git
 cd oxitun-vpn-in-rust
 docker build -t oxitun .
 ```
