@@ -3,7 +3,7 @@
 name: oxitun
 
 x-oxitun: &oxitun
-  image: rafaelbs2026/oxitun:latest
+  image: ghcr.io/oxitun/oxitun:latest
   restart: unless-stopped
   cap_add:
     - NET_ADMIN

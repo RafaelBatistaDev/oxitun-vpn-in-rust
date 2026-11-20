@@ -62,11 +62,13 @@ profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
 
 ### Using the published image
 
-Prebuilt images are published at `ghcr.io/rafaelbatistadev/oxitun` and
-`rafaelbs2026/oxitun` (Docker Hub):
+The canonical image is published at **`ghcr.io/oxitun/oxitun`** (public GHCR,
+anonymous pull works). Mirrors with the author's name are also published at
+`ghcr.io/rafaelbatistadev/oxitun` and `rafaelbs2026/oxitun` (Docker Hub) as
+fallbacks:
 
 ```bash
-docker pull ghcr.io/rafaelbatistadev/oxitun:latest
+docker pull ghcr.io/oxitun/oxitun:latest
 ```
 
 `docker ps` shows the **local tag** used at container creation, not the
@@ -75,7 +77,7 @@ retag the image locally or build it from source:
 
 ```bash
 # retag the pulled image
-docker tag ghcr.io/rafaelbatistadev/oxitun:latest oxitun:latest
+docker tag ghcr.io/oxitun/oxitun:latest oxitun:latest
 # then use `oxitun:latest` in `docker run` / compose → shows "oxitun"
 
 # or build it yourself (no registry needed)
