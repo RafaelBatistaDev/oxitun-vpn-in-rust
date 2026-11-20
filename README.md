@@ -60,6 +60,30 @@ See `docker-compose.yml` — copy `.env.example` to `.env`, drop `.ovpn`
 profiles next to it as `oxitun-1.ovpn` / `oxitun-2.ovpn`, then
 `docker compose up -d`.
 
+### Using the published image
+
+Prebuilt images are published at `ghcr.io/rafaelbatistadev/oxitun` and
+`rafaelbs2026/oxitun` (Docker Hub):
+
+```bash
+docker pull ghcr.io/rafaelbatistadev/oxitun:latest
+```
+
+`docker ps` shows the **local tag** used at container creation, not the
+image author. To display a short name instead of the full registry path,
+retag the image locally or build it from source:
+
+```bash
+# retag the pulled image
+docker tag ghcr.io/rafaelbatistadev/oxitun:latest oxitun:latest
+# then use `oxitun:latest` in `docker run` / compose → shows "oxitun"
+
+# or build it yourself (no registry needed)
+git clone https://github.com/RafaelBatistaDev/oxitun-vpn-in-rust.git
+cd oxitun-vpn-in-rust
+docker build -t oxitun .
+```
+
 ## Environment variables
 
 | Variable | Default | Description |

@@ -14,6 +14,10 @@ env:
   GHCR_IMAGE: ghcr.io/rafaelbatistadev/oxitun
   DOCKERHUB_IMAGE: rafaelbs2026/oxitun
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  # Optional neutral namespace (e.g. ghcr.io/<org>/oxitun or oxitun/oxitun).
+  # Set the repo variable NEUTRAL_IMAGE to enable; ghcr targets also need
+  # the NEUTRAL_GHCR_TOKEN secret (PAT with write:packages on the org).
+  NEUTRAL_IMAGE: ${{ vars.NEUTRAL_IMAGE }}
 
 jobs:
   build:
@@ -73,4 +77,32 @@ jobs:
           push: true
           tags: ${{ steps.meta-dockerhub.outputs.tags }}
           labels: ${{ steps.meta-dockerhub.outputs.labels }}
+          cache-from: type=gha
+
+      - name: Login to neutral GHCR namespace
+        if: env.NEUTRAL_IMAGE != '' && startsWith(env.NEUTRAL_IMAGE, 'ghcr.io/')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.NEUTRAL_GHCR_TOKEN }}
+
+      - id: meta-neutral
+        if: env.NEUTRAL_IMAGE != ''
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.NEUTRAL_IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=sha
+
+      - name: Push to neutral image
+        if: env.NEUTRAL_IMAGE != ''
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta-neutral.outputs.tags }}
+          labels: ${{ steps.meta-neutral.outputs.labels }}
           cache-from: type=gha
